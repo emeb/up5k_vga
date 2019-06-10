@@ -1,0 +1,112 @@
+[*]
+[*] GTKWave Analyzer v3.3.94 (w)1999-2018 BSI
+[*] Sat Jun  8 20:03:02 2019
+[*]
+[dumpfile] "/home/ericb/KBADC/lattice/up5k_vga/icarus/tb_vga.vcd"
+[dumpfile_mtime] "Sat Jun  8 19:58:55 2019"
+[dumpfile_size] 114617144
+[savefile] "/home/ericb/KBADC/lattice/up5k_vga/icarus/tb_vga.gtkw"
+[timestart] 0
+[size] 1336 600
+[pos] -1 -1
+*-30.000000 0 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tb_vga.
+[treeopen] tb_vga.uut.
+[sst_width] 219
+[signals_width] 174
+[sst_expanded] 1
+[sst_vpaned_height] 144
+@200
+-TB
+@28
+tb_vga.clk
+tb_vga.reset
+tb_vga.vga_b[1:0]
+tb_vga.vga_g[1:0]
+tb_vga.vga_hs
+tb_vga.vga_r[1:0]
+tb_vga.vga_vs
+@200
+-UUT
+@28
+tb_vga.uut.active
+tb_vga.uut.active_dly
+@22
+tb_vga.uut.active_pipe[4:0]
+tb_vga.uut.addr[12:0]
+@28
+tb_vga.uut.b[1:0]
+@22
+tb_vga.uut.back[3:0]
+@28
+tb_vga.uut.bank
+@22
+tb_vga.uut.cg_addr[10:0]
+tb_vga.uut.cg_dout[7:0]
+tb_vga.uut.char_addr[12:0]
+@28
+tb_vga.uut.cline[2:0]
+@22
+tb_vga.uut.cline_dly0[3:0]
+tb_vga.uut.cline_dly1[3:0]
+tb_vga.uut.cline_dly[3:0]
+@28
+tb_vga.uut.clk
+tb_vga.uut.clk_4x
+@22
+tb_vga.uut.color_idx[7:0]
+tb_vga.uut.ctl_dout[7:0]
+tb_vga.uut.ctrl[7:0]
+tb_vga.uut.din[7:0]
+tb_vga.uut.fore[3:0]
+@28
+tb_vga.uut.g[1:0]
+tb_vga.uut.gc
+tb_vga.uut.ha
+@22
+tb_vga.uut.haddr[6:0]
+tb_vga.uut.hcnt[10:0]
+@28
+tb_vga.uut.hs
+tb_vga.uut.hs_dly
+@22
+tb_vga.uut.hs_pipe[4:0]
+tb_vga.uut.mem_addr[13:0]
+@28
+tb_vga.uut.mem_we
+tb_vga.uut.pcnt[2:0]
+tb_vga.uut.r[1:0]
+@22
+tb_vga.uut.ram_dout[7:0]
+tb_vga.uut.raw_ram_dout[7:0]
+tb_vga.uut.raw_ram_word[15:0]
+@28
+tb_vga.uut.reset
+tb_vga.uut.sel_ctl
+tb_vga.uut.sel_ram
+tb_vga.uut.va
+@22
+tb_vga.uut.vaddr[6:0]
+tb_vga.uut.vcnt[9:0]
+tb_vga.uut.vdat[7:0]
+@28
+tb_vga.uut.vga_b[1:0]
+tb_vga.uut.vga_g[1:0]
+tb_vga.uut.vga_hs
+tb_vga.uut.vga_r[1:0]
+tb_vga.uut.vga_vs
+@22
+tb_vga.uut.vid_addr[13:0]
+tb_vga.uut.vid_shf_reg[7:0]
+@28
+tb_vga.uut.vload
+tb_vga.uut.vload_dly
+tb_vga.uut.vload_pipe[2:0]
+tb_vga.uut.vs
+tb_vga.uut.vs_dly
+@22
+tb_vga.uut.vs_pipe[4:0]
+@28
+tb_vga.uut.we
+[pattern_trace] 1
+[pattern_trace] 0
