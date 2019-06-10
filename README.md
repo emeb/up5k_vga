@@ -41,6 +41,11 @@ You will also need the following 6502 tools to build the startup ROM:
 	cd icestorm
 	make
 
+Note: It is not unusual for the make process to fail due to missed timing
+constraints on the 40MHz pixel clock. This is generally not a serious problem
+due to pessimistic timing parameters in the Icestorm tools. Simply rerun "make"
+to complete the build.
+
 ## Loading
 
 I built this system on a custom up5k board and programmed it with a custom
@@ -215,6 +220,6 @@ places - I used this archive: http://www.osiweb.org/misc/OSI600_RAM_ROM.zip
 ## Thanks
 
 Thanks to the developers of all the tools used for this, as well as the authors
-of the IP core I snagged for the 65C02. I've added those as submodules
-so you'll know where to get them and who to give credit to.
+of the IP core I snagged for the 65C02. I've added that as a submodule
+so you'll know where to get it and who to give credit to.
 
