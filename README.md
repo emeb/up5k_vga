@@ -18,7 +18,7 @@ and original OSI 2kB character ROM
 * PS/2 Keyboard port with tx and rx capability
 * 4-voice sound generator with 1-bit sigma-delta output
 
-![board](doc/board.png)
+![board](doc/vga_screenshot.png)
 
 ## prerequisites
 To build this you will need the following FPGA tools
