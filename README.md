@@ -215,6 +215,6 @@ places - I used this archive: http://www.osiweb.org/misc/OSI600_RAM_ROM.zip
 ## Thanks
 
 Thanks to the developers of all the tools used for this, as well as the authors
-of the IP cores I snagged for the 6502 and UART. I've added those as submodules
+of the IP core I snagged for the 65C02. I've added those as submodules
 so you'll know where to get them and who to give credit to.
 
