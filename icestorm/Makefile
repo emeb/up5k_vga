@@ -73,7 +73,6 @@ lint: $(SRC)
 
 clean:
 	rm -f *.json *.asc *.rpt *.bin
-	$(MAKE) clean -C ../cc65/
 
 .SECONDARY:
 .PHONY: all prog clean

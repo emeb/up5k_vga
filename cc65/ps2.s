@@ -1,6 +1,7 @@
 ; ---------------------------------------------------------------------------
 ; ps2.s - ps2 interface routines
 ; 2019/04/01 E. Brombaugh
+; Note - requires 65C02 support
 ; ---------------------------------------------------------------------------
 ;
 
@@ -26,9 +27,9 @@ x_temp:		.byte		$00
 .proc _ps2_init: near
 			lda #$01				; reset PS2
 			sta PS2_CTRL
-			lda #$00				; normal operation
-			sta PS2_CTRL
-			sta cl_state			; init caps lock state
+			stz PS2_CTRL			; normal operation
+			stz cl_state			; init caps lock state
+			jsr _ps2_caps_led_set	; update caps led
 			rts
 .endproc
 
@@ -44,8 +45,12 @@ x_temp:		.byte		$00
 			lda	PS2_DATA			; receive ascii
 nb_no_chr:	sta key_temp
 			stx x_temp
-			jsr _ps2_caps_led		; handle capslock
-			lda key_temp
+			lda	PS2_CTRL			; check if capslock changed
+			eor cl_state
+			and #$10
+			beq no_chg				; if no change then return
+			jsr _ps2_caps_led_set	; else update caps led
+no_chg:		lda key_temp
 			ldx x_temp
 			rts
 .endproc
@@ -53,11 +58,7 @@ nb_no_chr:	sta key_temp
 ; ---------------------------------------------------------------------------
 ; handle caps lock LED status - enter w/ no RX 
 
-.proc _ps2_caps_led: near
-			lda	PS2_CTRL			; check if capslock changed
-			eor cl_state
-			and #$10
-			beq no_chg				; if no change then check for new key
+.proc _ps2_caps_led_set: near
 			lda PS2_RDAT			; clear raw ready
 			lda PS2_CTRL
 			sta cl_state			; update shadow copy
@@ -81,5 +82,5 @@ rx_w1:		lda PS2_RSTA			; wait for raw ready
 tx_w3:		lda PS2_CTRL			; wait for TX ready
 			and #$20				; tx_rdy
 			beq tx_w3
-no_chg:		rts
+			rts
 .endproc

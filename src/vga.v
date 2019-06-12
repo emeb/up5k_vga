@@ -35,13 +35,16 @@ module vga(
 	
 	// control register and color LUT
 	reg [5:0] color_lut[15:0];
-	reg [7:0] ctrl;
+	reg [7:0] ctrl, hires;
 	// write
 	always @(posedge clk)
 		if(reset)
 		begin
 			// clear control reg
 			ctrl <= 8'h00;
+			
+			// hires color mapping
+			hires <= 8'hF3;
 			
 			// 3-bits luma, 3-bits chroma phase, 2-bits chroma gain
 			color_lut[0]  <= 6'b00_00_00;	// black
@@ -66,6 +69,7 @@ module vga(
 			if(addr[4]==1'b0)
 				case(addr[3:0])
 					4'h0: ctrl <= din;
+					4'h1: hires <= din;
 				endcase
 			else
 				color_lut[addr[3:0]] <= din[5:0];
@@ -77,6 +81,7 @@ module vga(
 			if(addr[4]==1'b0)
 				case(addr[3:0])
 					4'h0: ctl_dout <= ctrl;
+					4'h1: ctl_dout <= hires;
 					default: ctl_dout <= 8'h00;
 				endcase
 			else
@@ -85,7 +90,8 @@ module vga(
 	// break out bank select for glyph / color addressing
 	wire gc = ctrl[0];
 	wire bank = ctrl[1];
-			
+	wire [1:0] mode = ctrl[3:2];
+	
 	// video timing - separate H and V counters
 	reg [10:0] hcnt;
 	reg [9:0] vcnt;
@@ -147,9 +153,11 @@ module vga(
 	localparam BK_TOP = VFP_WID + VS_WID + VBP_WID; // vertical top
 	
 	// extract video character data address & ROM line
-	reg active;			// active video 
+	reg active;			// active video
 	reg [2:0] pcnt;		// pixel/char count
 	reg vload;			// load video shift reg
+	reg hrena;			// hi-res shift enable at 1/2 pixel rate
+	reg mrena;			// med-res shift enable at 1/4 pixel rate
 	reg [6:0] haddr;	// horizontal component of vram addr
 	reg [2:0] cline;	// character line index
 	reg [6:0] vaddr;	// vertical component of vram addr
@@ -160,6 +168,8 @@ module vga(
 			active <= 1'b0;
 			pcnt <= 3'b000;
 			vload <= 1'b0;
+			hrena <= 1'b0;
+			mrena <= 1'b0;
 			haddr <= 7'd0;
 			cline <= 3'b000;
 			vaddr <= 7'd0;
@@ -175,6 +185,8 @@ module vga(
 					active <= 1'b1;		// active video
 					pcnt <= 3'b000;
 					vload <= 1'b1;		// start with load
+					hrena <= 1'b1;		// enable on 1st
+					mrena <= 1'b1;		// enable on 1st
 					haddr <= 7'd0;
 				end
 				
@@ -215,17 +227,27 @@ module vga(
 				
 				// always increment pixel count
 				pcnt <= pcnt + 3'b001;
+				
+				// hrena runs at 1/2 rate
+				hrena <= pcnt[0];
+				
+				// mrena runs at 1/4 rate
+				mrena <= &pcnt[1:0];
 			end
 		end
 	end
 	
 	// pipeline control signals
 	reg [2:0] vload_pipe;
+	reg [2:0] hrena_pipe;
+	reg [2:0] mrena_pipe;
 	reg [4:0] active_pipe, hs_pipe, vs_pipe;
 	reg [2:0] cline_dly0, cline_dly1;
 	always @(posedge clk_4x)
 	begin
 		vload_pipe <= {vload_pipe[1:0],vload};
+		hrena_pipe <= {hrena_pipe[1:0],hrena};
+		mrena_pipe <= {mrena_pipe[1:0],mrena};
 		active_pipe <= {active_pipe[3:0],active};
 		hs_pipe <= {hs_pipe[3:0],hs};
 		vs_pipe <= {vs_pipe[3:0],vs};
@@ -233,6 +255,8 @@ module vga(
 		cline_dly1 <= cline_dly0;
 	end
 	wire vload_dly = vload_pipe[2];
+	wire hrena_dly = hrena_pipe[2];
+	wire mrena_dly = mrena_pipe[2];
 	wire active_dly = active_pipe[4];
 	wire hs_dly = hs_pipe[4];
 	wire vs_dly = vs_pipe[4];
@@ -307,35 +331,77 @@ module vga(
 		.dout(cg_dout)
 	);
 	
-	// pipeline character color data or hires default
+	// pipeline character color data
 	reg [7:0] color_idx;
 	always @(posedge clk_4x)
 		color_idx <= raw_ram_word[15:8];
 	
-	// mux CG or GFX
-	wire [7:0] vdat = cg_dout;
+	// hires 2-color graphics mode nybble select
+	reg [3:0] hr_dout;
+	always @(posedge clk_4x)
+		case(cline_dly[2:1])
+			2'b00: hr_dout <= raw_ram_word[3:0];
+			2'b01: hr_dout <= raw_ram_word[7:4];
+			2'b10: hr_dout <= raw_ram_word[11:8];
+			2'b11: hr_dout <= raw_ram_word[15:12];
+		endcase
+	
+	// medres 16-color select
+	reg [7:0] mr_dout;
+	always @(posedge clk_4x)
+		mr_dout <= cline_dly[2] ? raw_ram_word[15:8] : raw_ram_word[7:0];
 	
 	// three pipes delay
 		
-	// Video Shift Register
+	// Video Shift Register for character mode
 	reg [7:0] vid_shf_reg;
 	reg [3:0] fore, back;
 	always @(posedge clk_4x)
 		if(vload_dly)
 		begin
-			vid_shf_reg <= vdat;
+			vid_shf_reg <= cg_dout;
 			fore <= color_idx[7:4];
 			back <= color_idx[3:0];
 		end
 		else 
 			vid_shf_reg <= {vid_shf_reg[6:0],1'b0};
 		
+	// Video Shift Register for hires mode runs at 1/2 pixel rate
+	reg [3:0] hr_shf_reg;
+	always @(posedge clk_4x)
+		if(hrena_dly)
+		begin
+			if(vload_dly)
+				hr_shf_reg <= hr_dout;
+			else 
+				hr_shf_reg <= {hr_shf_reg[2:0],1'b0};
+		end
+	
+	// Selector for medres mode
+	reg [3:0] mr_sel_reg;
+	always @(posedge clk_4x)
+		if(mrena_dly)
+			if(vload_dly)
+				mr_sel_reg <= mr_dout[3:0];
+			else
+				mr_sel_reg <= mr_dout[7:4];
+	
 	// four pipes delay
 		
-	// Color LUT
+	// color LUT addr
+	reg [3:0] color_addr;
+	always @(*)
+		case(mode)
+			2'b00: color_addr = vid_shf_reg[7] ? fore : back;
+			2'b01: color_addr = hr_shf_reg[3] ? hires[7:4] : hires[3:0];
+			2'b10: color_addr = mr_sel_reg;
+			2'b11: color_addr = mr_sel_reg;
+		endcase
+		
+	// Get color
 	reg [1:0] r, g, b;
 	always @(posedge clk_4x)
-		{r, g, b} <= color_lut[vid_shf_reg[7] ? fore : back];
+		{r, g, b} <= color_lut[color_addr];
 		
 	// reclock outputs
 	always @(posedge clk_4x)

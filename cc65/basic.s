@@ -126,7 +126,6 @@ in_lp:		jsr _chrin				; get character
 
 .proc _output: near
 			pha
-;			jsr BAS_VIDTXT
 			jsr _video_chrout
 			pla
 			jsr _acia_tx_chr
@@ -420,7 +419,7 @@ sv_outdone:	ldy temp2		; restore a, x, y
 .endproc
 
 loadmsg:
-.byte		" ",10,13,"BASIC loaded, patched and locked", 0
+.byte		10,13,"BASIC loaded, patched and locked", 0
 
 ; patch to use backspace instead of underline
 ; --------- original ---------- ; --- new -------

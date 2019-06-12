@@ -9,8 +9,8 @@ This system includes the following features:
 * Up to 52kB SRAM with optional write protect (using two of the four available SPRAM cores)
 * 8 bits input, 8 bits output
 * 115200bps serial I/O port
-* 800x600 60Hz 64 color VGA with text/glyph, 32kB video RAM (2 16kB pages)
-and original OSI 2kB character ROM
+* 800x600 60Hz 64 color VGA with text/glyph, 16-color medium rez, 2 color hi-rez,
+32kB video RAM (2 16kB pages) and original OSI 2kB character ROM
 * 2kB ROM for startup and I/O support
 * 8kB Ohio Scientific C1P Microsoft BASIC loaded from spi flash into protected RAM
 * SPI port with access to external flash memory
@@ -71,7 +71,7 @@ This is asking which initial service to start.
 * W - Warm start BASIC. Use this only after BASIC has been running and the system has been reset.
 * M - Machine Language Monitor.
 
-Hit the key of choice (uppercase only!) to continue.
+Hit the key of choice (upper or lower case) to continue.
 
 ## Running BASIC
 
@@ -140,8 +140,9 @@ with most standard analog VGA monitors. Features are:
 * 100x75 text/glyph mode using the OSI 8x8 character generator
 * Separate foreground / background colors per-character in text/glyph mode from
 a user-defined 16-color map with 64 possible colors for each entry.
+* 200x150 16-color medium resolution graphic mode
+* 400x300 2-color high resolution graphic mode
 * 2 16kB memory pages
-* Future enhancements may include a bitmapped graphics mode.
 
 ![characters](doc/chargen1x.png)
 
